@@ -1,6 +1,6 @@
 
-import { Task } from '@/contexts/TaskContext';
-import { useTasks } from '@/hooks/useTasks';
+import { Task } from '@/types/task';
+import { useReduxTasks } from '@/hooks/useReduxTasks';
 import {
   Dialog,
   DialogContent,
@@ -16,13 +16,21 @@ interface TaskModalProps {
 }
 
 export function TaskModal({ open, onOpenChange, taskToEdit }: TaskModalProps) {
-  const { addTask, updateTask } = useTasks();
+  const { addNewTask, updateExistingTask } = useReduxTasks();
   
   const handleSave = (taskData: Omit<Task, 'id' | 'createdAt'>) => {
     if (taskToEdit) {
-      updateTask(taskToEdit.id, taskData);
+      updateExistingTask({
+        ...taskToEdit,
+        ...taskData,
+      });
     } else {
-      addTask(taskData);
+      const newTask: Task = {
+        ...taskData,
+        id: Date.now().toString(),
+        createdAt: new Date().toISOString(),
+      };
+      addNewTask(newTask);
     }
     onOpenChange(false);
   };

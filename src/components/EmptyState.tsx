@@ -1,10 +1,9 @@
 
 import { ClipboardList, CheckCircle, CheckCircle2 } from 'lucide-react';
-import { TaskFilter } from '@/contexts/TaskContext';
 import { cn } from '@/lib/utils';
 
 interface EmptyStateProps {
-  filter: TaskFilter;
+  filter: 'all' | 'active' | 'completed';
 }
 
 export function EmptyState({ filter }: EmptyStateProps) {

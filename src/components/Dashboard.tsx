@@ -4,10 +4,10 @@ import { TaskList } from './TaskList';
 import { TaskModal } from './TaskModal';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { useTasks } from '@/hooks/useTasks';
+import { useReduxTasks } from '@/hooks/useReduxTasks';
 
 export function Dashboard() {
-  const { filter } = useTasks();
+  const { filter } = useReduxTasks();
   const [isCreating, setIsCreating] = useState(false);
   
   const getFilterTitle = () => {

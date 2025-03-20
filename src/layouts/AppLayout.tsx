@@ -1,7 +1,6 @@
 
-import { useState } from 'react';
 import { ThemeProvider } from 'next-themes';
-import { TaskProvider } from '@/contexts/TaskContext';
+import { useReduxTasks } from '@/hooks/useReduxTasks';
 import {
   SidebarProvider,
   Sidebar,
@@ -15,8 +14,6 @@ import {
 } from '@/components/ui/sidebar';
 import { Logo } from '@/components/Logo';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { TaskFilter } from '@/contexts/TaskContext';
-import { useTasks } from '@/hooks/useTasks';
 import { cn } from '@/lib/utils';
 import { 
   ListTodo, 
@@ -30,23 +27,23 @@ interface AppLayoutProps {
 }
 
 function AppContent({ children }: AppLayoutProps) {
-  const { filter, setFilter } = useTasks();
+  const { filter, changeFilter } = useReduxTasks();
 
   const navItems = [
     { 
       title: 'All Tasks', 
       icon: ListTodo,
-      filter: 'all' as TaskFilter,
+      filter: 'all' as const,
     },
     { 
       title: 'Active', 
       icon: CircleDashed,
-      filter: 'active' as TaskFilter,
+      filter: 'active' as const,
     },
     { 
       title: 'Completed', 
       icon: CheckCircle,
-      filter: 'completed' as TaskFilter,
+      filter: 'completed' as const,
     },
   ];
 
@@ -66,7 +63,7 @@ function AppContent({ children }: AppLayoutProps) {
                       filter === item.filter && 
                       "bg-sidebar-accent text-sidebar-accent-foreground"
                     )}
-                    onClick={() => setFilter(item.filter)}
+                    onClick={() => changeFilter(item.filter)}
                   >
                     <item.icon className="mr-2 h-5 w-5" />
                     <span>{item.title}</span>
@@ -107,9 +104,7 @@ function AppContent({ children }: AppLayoutProps) {
 export function AppLayout({ children }: AppLayoutProps) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <TaskProvider>
-        <AppContent>{children}</AppContent>
-      </TaskProvider>
+      <AppContent>{children}</AppContent>
     </ThemeProvider>
   );
 }

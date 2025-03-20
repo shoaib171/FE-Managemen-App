@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Task } from '@/contexts/TaskContext';
+import { Task } from '@/types/task';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,7 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger
 } from '@/components/ui/popover';
-import { Calendar as CalendarIcon, Clock } from 'lucide-react';
+import { Calendar as CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -24,17 +24,21 @@ interface TaskEditorProps {
 export function TaskEditor({ taskToEdit, onSave, onCancel }: TaskEditorProps) {
   const [title, setTitle] = useState(taskToEdit?.title || '');
   const [description, setDescription] = useState(taskToEdit?.description || '');
-  const [dueDate, setDueDate] = useState<Date | undefined>(taskToEdit?.dueDate);
-  const [status, setStatus] = useState<'active' | 'completed'>(
-    taskToEdit?.status || 'active'
+  const [startDate, setStartDate] = useState<Date | undefined>(
+    taskToEdit?.startDate ? new Date(taskToEdit.startDate) : undefined
   );
+  const [endDate, setEndDate] = useState<Date | undefined>(
+    taskToEdit?.endDate ? new Date(taskToEdit.endDate) : undefined
+  );
+  const [completed, setCompleted] = useState(taskToEdit?.completed || false);
   
   useEffect(() => {
     if (taskToEdit) {
       setTitle(taskToEdit.title);
       setDescription(taskToEdit.description);
-      setDueDate(taskToEdit.dueDate);
-      setStatus(taskToEdit.status);
+      setStartDate(taskToEdit.startDate ? new Date(taskToEdit.startDate) : undefined);
+      setEndDate(taskToEdit.endDate ? new Date(taskToEdit.endDate) : undefined);
+      setCompleted(taskToEdit.completed);
     }
   }, [taskToEdit]);
   
@@ -48,8 +52,9 @@ export function TaskEditor({ taskToEdit, onSave, onCancel }: TaskEditorProps) {
     onSave({
       title,
       description,
-      dueDate,
-      status,
+      startDate: startDate?.toISOString(),
+      endDate: endDate?.toISOString(),
+      completed,
     });
   };
   
@@ -80,7 +85,7 @@ export function TaskEditor({ taskToEdit, onSave, onCancel }: TaskEditorProps) {
       </div>
       
       <div className="space-y-2">
-        <Label>Due Date & Time</Label>
+        <Label>Start Date</Label>
         <div className="flex gap-2">
           <Popover>
             <PopoverTrigger asChild>
@@ -88,30 +93,70 @@ export function TaskEditor({ taskToEdit, onSave, onCancel }: TaskEditorProps) {
                 variant="outline"
                 className={cn(
                   "w-full justify-start text-left font-normal",
-                  !dueDate && "text-muted-foreground"
+                  !startDate && "text-muted-foreground"
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {dueDate ? format(dueDate, 'PPP') : <span>Choose a date</span>}
+                {startDate ? format(startDate, 'PPP') : <span>Choose start date</span>}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
               <Calendar
                 mode="single"
-                selected={dueDate}
-                onSelect={setDueDate}
+                selected={startDate}
+                onSelect={setStartDate}
                 initialFocus
                 className="p-3 pointer-events-auto"
               />
             </PopoverContent>
           </Popover>
           
-          {dueDate && (
+          {startDate && (
             <Button
               type="button"
               variant="outline"
               className="text-red-500"
-              onClick={() => setDueDate(undefined)}
+              onClick={() => setStartDate(undefined)}
+            >
+              Clear
+            </Button>
+          )}
+        </div>
+      </div>
+      
+      <div className="space-y-2">
+        <Label>End Date</Label>
+        <div className="flex gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !endDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {endDate ? format(endDate, 'PPP') : <span>Choose end date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0">
+              <Calendar
+                mode="single"
+                selected={endDate}
+                onSelect={setEndDate}
+                initialFocus
+                className="p-3 pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+          
+          {endDate && (
+            <Button
+              type="button"
+              variant="outline"
+              className="text-red-500"
+              onClick={() => setEndDate(undefined)}
             >
               Clear
             </Button>
@@ -125,17 +170,17 @@ export function TaskEditor({ taskToEdit, onSave, onCancel }: TaskEditorProps) {
           <div className="flex gap-2">
             <Button
               type="button"
-              variant={status === 'active' ? 'default' : 'outline'}
+              variant={!completed ? 'default' : 'outline'}
               className="w-full"
-              onClick={() => setStatus('active')}
+              onClick={() => setCompleted(false)}
             >
               Active
             </Button>
             <Button
               type="button"
-              variant={status === 'completed' ? 'default' : 'outline'}
+              variant={completed ? 'default' : 'outline'}
               className="w-full"
-              onClick={() => setStatus('completed')}
+              onClick={() => setCompleted(true)}
             >
               Completed
             </Button>

@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { Check, Clock, Calendar, Edit, Trash } from 'lucide-react';
-import { Task } from '@/contexts/TaskContext';
-import { useTasks } from '@/hooks/useTasks';
+import { Task } from '@/types/task';
+import { useReduxTasks } from '@/hooks/useReduxTasks';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -14,17 +14,17 @@ interface TaskItemProps {
 }
 
 export function TaskItem({ task }: TaskItemProps) {
-  const { toggleTaskStatus, deleteTask } = useTasks();
+  const { toggleTaskCompleted, removeTask } = useReduxTasks();
   const [isEditing, setIsEditing] = useState(false);
   
   const handleToggleStatus = (e: React.MouseEvent) => {
     e.stopPropagation();
-    toggleTaskStatus(task.id);
+    toggleTaskCompleted(task.id);
   };
   
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    deleteTask(task.id);
+    removeTask(task.id);
   };
   
   const handleEdit = (e: React.MouseEvent) => {
@@ -38,9 +38,9 @@ export function TaskItem({ task }: TaskItemProps) {
         className={cn(
           "mb-3 overflow-hidden transition-all duration-300 hover:shadow-md",
           "border-l-4",
-          task.status === 'completed' 
+          task.completed 
             ? "border-l-green-500 bg-green-50 dark:bg-green-950/20" 
-            : task.dueDate && task.dueDate < new Date() 
+            : task.endDate && new Date(task.endDate) < new Date() 
               ? "border-l-red-500 bg-red-50 dark:bg-red-950/20"
               : "border-l-blue-500 bg-white dark:bg-gray-950"
         )}
@@ -53,48 +53,58 @@ export function TaskItem({ task }: TaskItemProps) {
                 size="icon" 
                 className={cn(
                   "rounded-full mt-0.5 transition-all",
-                  task.status === 'completed' ? "text-green-500" : "text-gray-400"
+                  task.completed ? "text-green-500" : "text-gray-400"
                 )}
                 onClick={handleToggleStatus}
               >
                 <Check className={cn(
                   "h-5 w-5 transition-all",
-                  task.status === 'completed' ? "opacity-100" : "opacity-30" 
+                  task.completed ? "opacity-100" : "opacity-30" 
                 )} />
               </Button>
               
               <div className="space-y-1">
                 <h3 className={cn(
                   "text-base font-medium transition-all",
-                  task.status === 'completed' && "line-through text-gray-500"
+                  task.completed && "line-through text-gray-500"
                 )}>
                   {task.title}
                 </h3>
                 
-                <p className={cn(
+                <div className={cn(
                   "text-sm text-gray-500 dark:text-gray-400",
-                  task.status === 'completed' && "line-through text-gray-400"
-                )}>
-                  {task.description}
-                </p>
+                  task.completed && "line-through text-gray-400"
+                )} 
+                  dangerouslySetInnerHTML={{ __html: task.description }}
+                />
                 
                 <div className="flex items-center gap-4 mt-2">
                   <div className="flex items-center text-xs text-gray-500">
                     <Calendar className="h-3.5 w-3.5 mr-1" />
-                    <span>{format(task.createdAt, 'MMM d, yyyy')}</span>
+                    <span>{new Date(task.createdAt).toLocaleDateString()}</span>
                   </div>
                   
-                  {task.dueDate && (
+                  {task.startDate && (
                     <div className={cn(
                       "flex items-center text-xs",
-                      task.status === 'completed' 
+                      "text-blue-500"
+                    )}>
+                      <Clock className="h-3.5 w-3.5 mr-1" />
+                      <span>Start: {new Date(task.startDate).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                  
+                  {task.endDate && (
+                    <div className={cn(
+                      "flex items-center text-xs",
+                      task.completed 
                         ? "text-gray-500" 
-                        : task.dueDate < new Date() 
+                        : new Date(task.endDate) < new Date() 
                           ? "text-red-500" 
                           : "text-blue-500"
                     )}>
                       <Clock className="h-3.5 w-3.5 mr-1" />
-                      <span>{format(task.dueDate, 'MMM d, h:mm a')}</span>
+                      <span>End: {new Date(task.endDate).toLocaleDateString()}</span>
                     </div>
                   )}
                 </div>
