@@ -10,15 +10,33 @@ import {
   PopoverContent,
   PopoverTrigger
 } from '@/components/ui/popover';
-import { Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar as CalendarIcon, Users } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useAuth } from '@/hooks/useAuth';
+import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface TaskEditorProps {
   taskToEdit?: Task;
   onSave: (task: Omit<Task, 'id' | 'createdAt'>) => void;
   onCancel: () => void;
+}
+
+interface User {
+  _id: string;
+  name: string;
+  email: string;
+  avatar?: string;
 }
 
 export function TaskEditor({ taskToEdit, onSave, onCancel }: TaskEditorProps) {
@@ -31,6 +49,21 @@ export function TaskEditor({ taskToEdit, onSave, onCancel }: TaskEditorProps) {
     taskToEdit?.endDate ? new Date(taskToEdit.endDate) : undefined
   );
   const [completed, setCompleted] = useState(taskToEdit?.completed || false);
+  const [assignedUser, setAssignedUser] = useState<string | undefined>(undefined);
+  
+  const { token } = useAuth();
+  
+  const { data: users = [], isLoading } = useQuery({
+    queryKey: ['users'],
+    queryFn: async () => {
+      if (!token) return [];
+      const response = await axios.get('http://localhost:5000/api/tasks/users', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    },
+    enabled: !!token
+  });
   
   useEffect(() => {
     if (taskToEdit) {
@@ -39,6 +72,10 @@ export function TaskEditor({ taskToEdit, onSave, onCancel }: TaskEditorProps) {
       setStartDate(taskToEdit.startDate ? new Date(taskToEdit.startDate) : undefined);
       setEndDate(taskToEdit.endDate ? new Date(taskToEdit.endDate) : undefined);
       setCompleted(taskToEdit.completed);
+      // Set assigned user if exists in the task
+      if (taskToEdit.assignedTo) {
+        setAssignedUser(taskToEdit.assignedTo);
+      }
     }
   }, [taskToEdit]);
   
@@ -55,7 +92,16 @@ export function TaskEditor({ taskToEdit, onSave, onCancel }: TaskEditorProps) {
       startDate: startDate?.toISOString(),
       endDate: endDate?.toISOString(),
       completed,
+      assignedTo: assignedUser
     });
+  };
+  
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase();
   };
   
   return (
@@ -82,6 +128,49 @@ export function TaskEditor({ taskToEdit, onSave, onCancel }: TaskEditorProps) {
           placeholder="Enter task description"
           className="min-h-[100px] transition-all duration-200"
         />
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="assignee">Assign To</Label>
+        <Select value={assignedUser} onValueChange={setAssignedUser}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select a user">
+              {assignedUser ? (
+                <div className="flex items-center">
+                  {users.find((user: User) => user._id === assignedUser)?.name || 'Select a user'}
+                </div>
+              ) : (
+                <div className="flex items-center">
+                  <Users className="h-4 w-4 mr-2" />
+                  <span>Select a user</span>
+                </div>
+              )}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {isLoading ? (
+              <div className="p-2 text-center">Loading users...</div>
+            ) : users.length === 0 ? (
+              <div className="p-2 text-center">No users available</div>
+            ) : (
+              users.map((user: User) => (
+                <SelectItem key={user._id} value={user._id} className="flex items-center p-2">
+                  <div className="flex items-center">
+                    <Avatar className="h-6 w-6 mr-2">
+                      {user.avatar ? (
+                        <AvatarImage src={user.avatar} alt={user.name} />
+                      ) : null}
+                      <AvatarFallback className="text-xs">
+                        {getInitials(user.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span>{user.name}</span>
+                  </div>
+                </SelectItem>
+              ))
+            )}
+          </SelectContent>
+        </Select>
       </div>
       
       <div className="space-y-2">
