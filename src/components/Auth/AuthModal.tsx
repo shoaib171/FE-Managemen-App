@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Logo } from '@/components/Logo';
 import { Loader2, Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
 interface AuthModalProps {
   open: boolean;
@@ -57,7 +58,10 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden">
         <div className="flex flex-col md:flex-row h-full">
           {/* Left side - Form */}
-          <div className={`flex-1 p-6 ${!isLogin ? 'md:order-2' : ''}`}>
+          <div className={cn(
+            "flex-1 p-6 transition-all duration-500 ease-in-out",
+            !isLogin ? 'md:order-2' : ''
+          )}>
             <DialogHeader className="text-left mb-4">
               <DialogTitle className="text-2xl">
                 {isLogin ? 'Welcome Back' : 'Create an Account'}
@@ -66,7 +70,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
             
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
-                <div className="space-y-2">
+                <div className="space-y-2 animate-fade-in">
                   <Label htmlFor="name">Full Name</Label>
                   <Input
                     id="name"
@@ -74,6 +78,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required={!isLogin}
+                    className="transition-all duration-300 focus:ring-2 focus:ring-primary"
                   />
                 </div>
               )}
@@ -87,6 +92,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  className="transition-all duration-300 focus:ring-2 focus:ring-primary"
                 />
               </div>
               
@@ -99,16 +105,17 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  className="transition-all duration-300 focus:ring-2 focus:ring-primary"
                 />
               </div>
               
               {error && (
-                <div className="text-red-500 text-sm py-1">{error}</div>
+                <div className="text-red-500 text-sm py-1 animate-fade-in">{error}</div>
               )}
               
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full transition-all duration-300 hover:scale-[1.02]"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -135,7 +142,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full"
+                className="w-full transition-all duration-300 hover:bg-accent hover:scale-[1.02]"
                 onClick={handleGoogleLogin}
               >
                 <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -162,27 +169,38 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           </div>
           
           {/* Right side - Logo or Sign up */}
-          <div className={`flex-1 bg-primary text-primary-foreground p-8 flex flex-col items-center justify-center ${!isLogin ? 'md:order-1' : ''}`}>
+          <div className={cn(
+            "flex-1 bg-primary text-primary-foreground p-8 flex flex-col items-center justify-center transition-all duration-500 ease-in-out",
+            !isLogin ? 'md:order-1' : ''
+          )}>
             <div className="text-center max-w-xs mx-auto">
               {isLogin ? (
                 <>
-                  <Logo className="h-12 w-auto mx-auto mb-6" />
-                  <h2 className="text-xl font-bold mb-2">New to our platform?</h2>
-                  <p className="mb-6 text-primary-foreground/80">
+                  <Logo className="h-12 w-auto mx-auto mb-6 animate-scale-in" />
+                  <h2 className="text-xl font-bold mb-2 animate-fade-in">New to our platform?</h2>
+                  <p className="mb-6 text-primary-foreground/80 animate-fade-in animation-delay-200">
                     Sign up now to manage your tasks efficiently and collaborate with your team.
                   </p>
-                  <Button variant="outline" className="w-full" onClick={toggleMode}>
+                  <Button 
+                    variant="outline" 
+                    className="w-full transition-all duration-300 hover:scale-105 animate-fade-in animation-delay-400 opacity-100 hover:opacity-100 focus:opacity-100"
+                    onClick={toggleMode}
+                  >
                     Sign Up
                   </Button>
                 </>
               ) : (
                 <>
-                  <Mail className="h-12 w-12 mx-auto mb-6" />
-                  <h2 className="text-xl font-bold mb-2">Already have an account?</h2>
-                  <p className="mb-6 text-primary-foreground/80">
+                  <Mail className="h-12 w-12 mx-auto mb-6 animate-scale-in" />
+                  <h2 className="text-xl font-bold mb-2 animate-fade-in">Already have an account?</h2>
+                  <p className="mb-6 text-primary-foreground/80 animate-fade-in animation-delay-200">
                     Log in to access your tasks, track progress, and collaborate with your team.
                   </p>
-                  <Button variant="outline" className="w-full" onClick={toggleMode}>
+                  <Button 
+                    variant="outline" 
+                    className="w-full transition-all duration-300 hover:scale-105 animate-fade-in animation-delay-400 opacity-100 hover:opacity-100 focus:opacity-100"
+                    onClick={toggleMode}
+                  >
                     Log In
                   </Button>
                 </>
