@@ -1,7 +1,7 @@
 
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { addTask, updateTask, removeTask as removeTaskAction, toggleTask, setFilter } from '@/store/taskSlice';
+import { addTask, updateTask, deleteTask, toggleTaskCompleted, setFilter } from '@/store/taskSlice';
 import { Task } from '@/types/task';
 
 export const useReduxTasks = () => {
@@ -24,11 +24,11 @@ export const useReduxTasks = () => {
   };
 
   const removeTask = (id: string) => {
-    return dispatch(removeTaskAction(id));
+    return dispatch(deleteTask(id));
   };
 
   const toggleTaskCompleted = (id: string) => {
-    return dispatch(toggleTask(id));
+    return dispatch(toggleTaskCompleted(id));
   };
 
   const updateTaskStatus = (id: string, status: 'active' | 'in_progress' | 'completed') => {

@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -56,6 +56,9 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden">
+        <DialogDescription className="sr-only">
+          {isLogin ? 'Login to your account' : 'Create a new account'}
+        </DialogDescription>
         <div className="flex flex-col md:flex-row h-full">
           {/* Left side - Form */}
           <div className={cn(
@@ -183,7 +186,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                   </p>
                   <Button 
                     variant="outline" 
-                    className="w-full transition-all duration-300 hover:scale-105 animate-fade-in animation-delay-400 opacity-100 hover:opacity-100 focus:opacity-100"
+                    className="w-full transition-all duration-300 hover:scale-105 animate-fade-in animation-delay-400 opacity-100 focus:opacity-100"
                     onClick={toggleMode}
                   >
                     Sign Up
@@ -198,7 +201,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                   </p>
                   <Button 
                     variant="outline" 
-                    className="w-full transition-all duration-300 hover:scale-105 animate-fade-in animation-delay-400 opacity-100 hover:opacity-100 focus:opacity-100"
+                    className="w-full transition-all duration-300 hover:scale-105 animate-fade-in animation-delay-400 opacity-100 focus:opacity-100"
                     onClick={toggleMode}
                   >
                     Log In
