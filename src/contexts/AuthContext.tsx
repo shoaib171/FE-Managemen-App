@@ -36,7 +36,7 @@ export const AuthContext = createContext<AuthContextType>({
 });
 
 // Create API with auth header
-export const API_URL = 'http://localhost:5000/api';
+export const API_URL = 'http://localhost:4000/api';
 
 export const createApi = (token: string | null) => {
   const api = axios.create({
